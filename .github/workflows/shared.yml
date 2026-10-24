@@ -1,0 +1,17 @@
+name: Shared protocol
+
+# Keeps shared/testdata golden files in sync with the reference decoder every port tests against.
+on:
+  push:
+    branches: [main]
+    paths: ["shared/**", ".github/workflows/shared.yml"]
+  pull_request:
+    paths: ["shared/**", ".github/workflows/shared.yml"]
+
+jobs:
+  golden:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Golden files are current
+        run: python3 shared/reference/bamboo_reference.py check

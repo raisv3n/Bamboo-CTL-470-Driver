@@ -1,0 +1,28 @@
+# Wacom's copyrighted installers and their expanded payloads (see original-driver/README.md)
+original-driver/*
+!original-driver/README.md
+
+# Ghidra/REA analysis snapshots of Wacom's binaries
+*.rea-snapshot
+
+# Build output
+macos/build/
+macos/dist/
+windows/**/target/
+windows/**/bin/
+windows/**/obj/
+linux/**/target/
+linux/**/build/
+*.zip
+
+# Signing material
+*.p12
+*.pem
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+__pycache__/

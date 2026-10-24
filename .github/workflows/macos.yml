@@ -1,0 +1,67 @@
+name: macOS
+
+# Builds on changes to macOS or shared code; publishes BambooDriver-macos.zip on macos-v* tags.
+# Each platform has its own workflow and tag prefix (macos-v*, windows-v*, linux-v*).
+on:
+  push:
+    branches: [main]
+    paths: ["macos/**", "shared/**", ".github/workflows/macos.yml"]
+    tags: ["macos-v*"]
+  pull_request:
+    paths: ["macos/**", "shared/**", ".github/workflows/macos.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    env:
+      HAS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_P12_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Check tag matches VERSION
+        if: startsWith(github.ref, 'refs/tags/macos-v')
+        run: |
+          version=$(sed -n 's/^VERSION=//p' macos/build.sh)
+          [ "macos-v$version" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME != macos/build.sh VERSION=$version"; exit 1; }
+
+      # Same identity as local builds, so Accessibility grants survive updates (see macos/tools/export-signing-cert.sh).
+      - name: Import signing identity
+        env:
+          P12_BASE64: ${{ secrets.MACOS_SIGNING_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.MACOS_SIGNING_P12_PASSWORD }}
+        if: env.HAS_SIGNING_IDENTITY == 'true'
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          echo "$P12_BASE64" | base64 --decode > "$RUNNER_TEMP/signing.p12"
+          security create-keychain -p ci "$keychain"
+          security set-keychain-settings "$keychain"
+          security unlock-keychain -p ci "$keychain"
+          security import "$RUNNER_TEMP/signing.p12" -k "$keychain" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci "$keychain"
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/signing.p12"
+
+      - name: Golden tests
+        run: ./macos/tests/run.sh
+
+      - name: Package
+        run: |
+          ./macos/package.sh
+          mv macos/dist/BambooDriver.zip macos/dist/BambooDriver-macos.zip
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: BambooDriver-macos
+          path: macos/dist/BambooDriver-macos.zip
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/macos-v')
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          name: BambooDriver for macOS ${{ github.ref_name }}
+          files: macos/dist/BambooDriver-macos.zip
+          generate_release_notes: true
