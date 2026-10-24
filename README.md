@@ -16,6 +16,8 @@ confirmed on the real tablet.
 2. In Terminal, run the `install.sh` inside the folder (drag it into the Terminal window, press Return).
    It copies the app to /Applications, clears the download quarantine and starts it.
 3. Allow **BambooDriver** in System Settings → Privacy & Security → **Accessibility**.
+   After installing a newer release, remove the old BambooDriver entry there and add the new app
+   (release builds are ad-hoc signed, so macOS treats each version as a new app).
 
 It runs in the menu bar (pencil icon) and opens at login. Quitting it returns the tablet to plain
 mouse mode.

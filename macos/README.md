@@ -16,18 +16,13 @@ tests/run.sh                 # decoder vs shared/testdata golden files
 Version: `VERSION` in `build.sh`. Release: push to `main`, then push tag `macos-v<VERSION>`;
 `.github/workflows/macos.yml` tests, packages and publishes `BambooDriver-macos.zip`.
 
-### Signing in CI
+### Signing
 
-For release builds to carry the same signature as local ones (so Accessibility stays granted
-across updates on every Mac), add two repository secrets once:
-
-```sh
-tools/export-signing-cert.sh   # copies MACOS_SIGNING_P12_BASE64 to the clipboard, prints the password
-```
-
-GitHub → Settings → Secrets and variables → Actions: `MACOS_SIGNING_P12_BASE64`,
-`MACOS_SIGNING_P12_PASSWORD`. Without them CI signs ad-hoc and each update needs Accessibility
-re-enabled.
+Local builds are signed with the self-signed "BambooDriver Local Signing" identity, so the
+Accessibility grant survives rebuilds on this Mac. Release builds from CI are **ad-hoc signed**:
+the signing key is deliberately kept off GitHub, because anyone holding it could sign an app that
+inherits BambooDriver's Accessibility permission. After installing an update from Releases,
+re-enable BambooDriver under Accessibility (remove the old entry, add the new app).
 
 The app is not notarized; `install.sh` clears the quarantine flag. If opened directly from a download
 instead, use System Settings → Privacy & Security → Open Anyway.
