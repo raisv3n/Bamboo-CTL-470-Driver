@@ -6,7 +6,7 @@ confirmed on the real tablet.
 
 | Platform | Status | Folder |
 |---|---|---|
-| macOS 14+ (built for macOS 27 Golden Gate), Apple silicon and Intel | Working, v0.2.0 | [`macos/`](macos/) |
+| macOS 14+ (built for macOS 27 Golden Gate), Apple silicon and Intel | Working, v0.2.1 | [`macos/`](macos/) |
 | Windows | Not started — see porting guide | [`windows/`](windows/) |
 | Linux | Likely supported by the kernel already | [`linux/`](linux/) |
 
@@ -38,7 +38,7 @@ mouse mode.
 
 ## Releases
 
-Each platform releases independently with its own tag prefix: `macos-v0.2.0`, `windows-v…`, `linux-v…`.
+Each platform releases independently with its own tag prefix: `macos-v0.2.1`, `windows-v…`, `linux-v…`.
 Pushing a `macos-v*` tag that matches `VERSION` in `macos/build.sh` builds, tests and publishes
 `BambooDriver-macos.zip`.
 
